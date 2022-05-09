@@ -1,44 +1,22 @@
 
+###    url: jdbc:postgresql://us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io:5433/yugabyte?ssl=true&sslmode=verify-full&sslrootcert=C:\devl\wfb\hackathon\petclinic-spring-data-yugabytedb\.postgresql\root.crt
 
 yugabyte:
   datasource:
-    driver-class-name: com.yugabyte.Driver
-###    url: jdbc:postgresql://us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io:5433/yugabyte?ssl=true&sslmode=verify-full&sslrootcert=C:\devl\wfb\hackathon\petclinic-spring-data-yugabytedb\.postgresql\root.crt
-#    url: jdbc:yugabytedb://us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io:5433/yugabyte
-    load-balance: true
-    username: user2
-    password: user#2
-###################
-    db-name: hackathon
+    driver-class-name: com.yugabyte.ysql.YBClusterAwareDataSource
+    #host: 192.168.0.108
     host: us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io
     port: 5433
-    ssl-mode: verify-full
-    ssl-root-cert: C:/devl/wfb/hackathon/yugabyte/certs/root.crt
-    connect-timeout: 30000
-    socket-timeout: 30000
-    login-timeout: 30000
-
-
-
-
-yugabyte-local:
-  datasource:
-    driver-class-name: com.yugabyte.Driver
-    ###    url: jdbc:postgresql://us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io:5433/yugabyte?ssl=true&sslmode=verify-full&sslrootcert=C:\devl\wfb\hackathon\petclinic-spring-data-yugabytedb\.postgresql\root.crt
-    #    url: jdbc:yugabytedb://us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io:5433/yugabyte
-    load-balance: false
-    username: yugabyte
-    password: yugabyte
-    ###################
-    db-name: yugabyte
-    host: 192.168.0.108
-    port: 5433
+    db-name: hackathon
+    username: user4
+    password: user#4
+    load-balance: true
+    #ssl-mode: verify-full
     ssl-mode: disable
-    ssl-root-cert: C:/devl/wfb/hackathon/yugabyte/certs/root.crt
-    connect-timeout: 30000
-    socket-timeout: 30000
-    login-timeout: 30000
-
+    ssl-root-cert: C:/devl/wfb/hackathon/yugabyte-service/certs/root.crt
+    connect-timeout: 120000
+    socket-timeout: 120000
+    login-timeout: 120000
 
 management:
   endpoints:

@@ -1,6 +1,6 @@
 package ak.db.yugabyte;
 
-import ak.db.yugabyte.repo.DeptRepository;
+import ak.db.yugabyte.repo.EmployeeRepository;
 import com.yugabyte.data.jdbc.datasource.YugabyteTransactionManager;
 import com.yugabyte.data.jdbc.repository.config.AbstractYugabyteJdbcConfiguration;
 import com.yugabyte.data.jdbc.repository.config.EnableYsqlRepositories;
@@ -18,13 +18,16 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.TransactionManager;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.Properties;
 
 @Configuration
-@EnableYsqlRepositories(basePackages = "ak.db.yugabyte.repo")
+@EnableYsqlRepositories(basePackageClasses = EmployeeRepository.class)
 public class YsqlConfig extends AbstractYugabyteJdbcConfiguration {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(YsqlConfig.class);
 
+/*
 
 	@Bean
 	DataSource dataSource(
@@ -48,7 +51,10 @@ public class YsqlConfig extends AbstractYugabyteJdbcConfiguration {
 			if (driverClassName != null) {
 				hikariConfig.setDriverClassName(driverClassName);
 			}
-			hikariConfig.setJdbcUrl("jdbc:yugabytedb://" + host + ":" + port + "/" + dbName);
+			String jdbcUrl = "jdbc:yugabytedb://" + host + ":" + port + "/" + dbName;
+			jdbcUrl += "?ssl=true&sslmode=verify-full&sslrootcert=C:/devl/wfb/hackathon/petclinic-spring-data-yugabytedb/.postgresql/root.crt";
+
+			hikariConfig.setJdbcUrl(jdbcUrl);
 			hikariConfig.setUsername(username);
 			hikariConfig.setPassword(password);
 			hikariConfig.setMinimumIdle(minPoolSize);
@@ -56,7 +62,9 @@ public class YsqlConfig extends AbstractYugabyteJdbcConfiguration {
 
 			//hikariConfig.setValidationTimeout(30 * 1000);
 			hikariConfig.setConnectionTimeout(connectTimeOut);
+
 			hikariConfig.setInitializationFailTimeout(30 * 1000);
+
 			hikariConfig.addDataSourceProperty("load-balance", loadBalance);
 
 			return new HikariDataSource(hikariConfig);
@@ -67,11 +75,11 @@ public class YsqlConfig extends AbstractYugabyteJdbcConfiguration {
 		}
 	}
 
+*/
 
-
-/*
 	@Bean
-	DataSource getDataSource(
+	DataSource dataSource(
+			@Value("${driver-class-name:com.yugabyte.ysql.YBClusterAwareDataSource}") String driverClassName,
 			@Value("${yugabyte.datasource.host}") String host,
 			@Value("${yugabyte.datasource.port}") String port,
 			@Value("${yugabyte.datasource.db-name}") String dbName,
@@ -82,7 +90,69 @@ public class YsqlConfig extends AbstractYugabyteJdbcConfiguration {
 			@Value("${yugabyte.datasource.connect-timeout:10000}") int connectTimeOut,
 			@Value("${yugabyte.datasource.socket-timeout:20000}") int socketTimeOut,
 			@Value("${yugabyte.datasource.login-timeout:40000}") int loginTimeOut,
-			@Value("${yugabyte.datasource.load-balance:false}") boolean loadBalance) {
+			@Value("${yugabyte.datasource.load-balance:false}") boolean loadBalance,
+			@Value("${yugabyte.datasource.min-pool-size:1}") int minPoolSize,
+			@Value("${yugabyte.datasource.max-pool-size:4}") int maxPoolSize) throws SQLException {
+
+		try {
+
+			Properties poolProperties = new Properties();
+			poolProperties.setProperty("dataSourceClassName", "com.yugabyte.ysql.YBClusterAwareDataSource");
+
+			poolProperties.setProperty("maximumPoolSize", String.valueOf(maxPoolSize));
+
+			poolProperties.setProperty("dataSource.serverName", host);
+			poolProperties.setProperty("dataSource.portNumber", port);
+			poolProperties.setProperty("dataSource.databaseName", dbName);
+
+			poolProperties.setProperty("dataSource.user", username);
+			poolProperties.setProperty("dataSource.password", password);
+
+
+			HikariConfig config = new HikariConfig(poolProperties);
+			config.validate();
+			HikariDataSource hikariDataSource = new HikariDataSource(config);
+
+			return hikariDataSource;
+
+	/*		YBClusterAwareDataSource ds = new YBClusterAwareDataSource();
+
+			String jdbcUrl = "jdbc:yugabytedb://" + host + ":" + port  + "/" + dbName;
+			ds.setUrl(jdbcUrl);
+			ds.setUser(username);
+			ds.setPassword(password);
+
+			Connection conn = ds.getConnection();
+			System.out.println(">>>> Successfully connected to " + dbName);
+			return ds;
+*/
+
+		} catch (Exception ex) {
+			//System.out.println("Error creating datasource :" + ex.getMessage());
+			LOGGER.error("Exception creating datasource :" + ex.getMessage());
+			throw ex;
+		}
+	}
+
+
+/*
+
+	@Bean
+	DataSource getDataSource (
+			@Value("${driver-class-name:com.yugabyte.Driver}") String driverClassName,
+			@Value("${yugabyte.datasource.host}") String host,
+			@Value("${yugabyte.datasource.port}") String port,
+			@Value("${yugabyte.datasource.db-name}") String dbName,
+			@Value("${yugabyte.datasource.username}") String username,
+			@Value("${yugabyte.datasource.password}") String password,
+			@Value("${yugabyte.datasource.ssl-mode}") String sslMode,
+			@Value("${yugabyte.datasource.ssl-root-cert}") String sslRootCert,
+			@Value("${yugabyte.datasource.connect-timeout:10000}") int connectTimeOut,
+			@Value("${yugabyte.datasource.socket-timeout:20000}") int socketTimeOut,
+			@Value("${yugabyte.datasource.login-timeout:40000}") int loginTimeOut,
+			@Value("${yugabyte.datasource.load-balance:false}") boolean loadBalance,
+			@Value("${yugabyte.datasource.min-pool-size:1}") int minPoolSize,
+			@Value("${yugabyte.datasource.max-pool-size:4}") int maxPoolSize) throws SQLException {
 
 		try {
 			YBClusterAwareDataSource ds = new YBClusterAwareDataSource();
@@ -105,13 +175,7 @@ public class YsqlConfig extends AbstractYugabyteJdbcConfiguration {
 				if (!sslRootCert.isEmpty())
 					ds.setSslRootCert(sslRootCert);
 			}
-			try {
-				Connection conn = ds.getConnection();
-				System.out.println(">>>> Successfully connected to YugabyteDB!");
-				conn.close();
-			} catch (Exception ex) {
-				LOGGER.error("Exception testing datasource :" + ex.getMessage());
-			}
+
 			return ds;
 		} catch (Exception ex) {
 			LOGGER.error("Exception creating datasource :" + ex.getMessage());
@@ -119,6 +183,7 @@ public class YsqlConfig extends AbstractYugabyteJdbcConfiguration {
 		}
 	}
 */
+
 
 	@Bean
 	JdbcTemplate jdbcTemplate(@Autowired DataSource dataSource) {

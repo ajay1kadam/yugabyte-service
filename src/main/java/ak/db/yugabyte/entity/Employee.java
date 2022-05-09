@@ -1,13 +1,14 @@
 package ak.db.yugabyte.entity;
 
-import javax.persistence.*;
 
-@Entity
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
 @Table
 public class Employee {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
     private String dept;

@@ -17,10 +17,10 @@ SELECT rolname, rolsuper, rolcanlogin FROM pg_roles;
 \du
 
 # Create user 
-CREATE USER user1 WITH PASSWORD 'user#1';
+CREATE USER user4 WITH PASSWORD 'user#4';
 
 # Grant all permissions hackathon  
-GRANT ALL ON DATABASE hackathon TO user1;
+GRANT ALL ON DATABASE hackathon TO user4;
 
 # List all tables
 \d
