@@ -4,7 +4,11 @@ import ak.db.yugabyte.entity.Employee;
 import ak.db.yugabyte.repo.EmployeeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -37,6 +41,19 @@ public class EmployeeController {
         } finally {
             LOGGER.info("getAllEmployees() Processing time (ms) : " + (System.currentTimeMillis() - st_time));
         }
+    }
+
+
+    @PostMapping("/api/employees/add")
+    public ResponseEntity<String> addEmployee(@RequestBody Employee employee) {
+        try {
+            employees.save(employee);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>( ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
 }
