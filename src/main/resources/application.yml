@@ -13,7 +13,7 @@ yugabyte:
     load-balance: true
     ssl-mode: disable
     #ssl-mode: verify-full
-    3ssl-root-cert: C:/devl/wfb/hackathon/yugabyte-service/certs/root.crt
+    ssl-root-cert: C:/devl/wfb/hackathon/yugabyte-service/certs/root.crt
     connect-timeout: 60000
     socket-timeout: 60000
     login-timeout: 60000
