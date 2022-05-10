@@ -11,12 +11,12 @@ yugabyte:
     username: user4
     password: user#4
     load-balance: true
-    #ssl-mode: verify-full
     ssl-mode: disable
-    ssl-root-cert: C:/devl/wfb/hackathon/yugabyte-service/certs/root.crt
-    connect-timeout: 120000
-    socket-timeout: 120000
-    login-timeout: 120000
+    #ssl-mode: verify-full
+    3ssl-root-cert: C:/devl/wfb/hackathon/yugabyte-service/certs/root.crt
+    connect-timeout: 60000
+    socket-timeout: 60000
+    login-timeout: 60000
 
 management:
   endpoints:
@@ -29,5 +29,6 @@ logging.level:
   com.zaxxer.hikari: TRACE
   com.zaxxer.hikari.HikariConfig: DEBUG
   com.yugabyte: DEBUG
+  com.yugabyte.ysql.YBClusterAwareDataSource: TRACE
   org.springframework.jdbc.core.JdbcTemplate: DEBUG
   org.springframework.jdbc.core.StatementCreatorUtils: TRACE

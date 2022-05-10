@@ -18,188 +18,93 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.transaction.TransactionManager;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Properties;
 
 @Configuration
 @EnableYsqlRepositories(basePackageClasses = EmployeeRepository.class)
 public class YsqlConfig extends AbstractYugabyteJdbcConfiguration {
 
-	private static Logger LOGGER = LoggerFactory.getLogger(YsqlConfig.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(YsqlConfig.class);
 
-/*
+    @Bean
+    DataSource dataSource(
+            @Value("${driver-class-name:com.yugabyte.ysql.YBClusterAwareDataSource}") String driverClassName,
+            @Value("${yugabyte.datasource.host}") String host,
+            @Value("${yugabyte.datasource.port}") String port,
+            @Value("${yugabyte.datasource.db-name}") String dbName,
+            @Value("${yugabyte.datasource.username}") String username,
+            @Value("${yugabyte.datasource.password}") String password,
 
-	@Bean
-	DataSource dataSource(
-			@Value("${driver-class-name:com.yugabyte.Driver}") String driverClassName,
-			@Value("${yugabyte.datasource.host}") String host,
-			@Value("${yugabyte.datasource.port}") String port,
-			@Value("${yugabyte.datasource.db-name}") String dbName,
-			@Value("${yugabyte.datasource.username}") String username,
-			@Value("${yugabyte.datasource.password}") String password,
-			@Value("${yugabyte.datasource.ssl-mode}") String sslMode,
-			@Value("${yugabyte.datasource.ssl-root-cert}") String sslRootCert,
-			@Value("${yugabyte.datasource.connect-timeout:10000}") int connectTimeOut,
-			@Value("${yugabyte.datasource.socket-timeout:20000}") int socketTimeOut,
-			@Value("${yugabyte.datasource.login-timeout:40000}") int loginTimeOut,
-			@Value("${yugabyte.datasource.load-balance:false}") boolean loadBalance,
-			@Value("${yugabyte.datasource.min-pool-size:1}") int minPoolSize,
-			@Value("${yugabyte.datasource.max-pool-size:4}") int maxPoolSize) {
+            @Value("${yugabyte.datasource.connect-timeout:10000}") int connectTimeOut,
+            @Value("${yugabyte.datasource.socket-timeout:10000}") int socketTimeOut,
+            @Value("${yugabyte.datasource.login-timeout:10000}") int loginTimeOut,
 
-		try {
-			HikariConfig hikariConfig = new HikariConfig();
-			if (driverClassName != null) {
-				hikariConfig.setDriverClassName(driverClassName);
-			}
-			String jdbcUrl = "jdbc:yugabytedb://" + host + ":" + port + "/" + dbName;
-			jdbcUrl += "?ssl=true&sslmode=verify-full&sslrootcert=C:/devl/wfb/hackathon/petclinic-spring-data-yugabytedb/.postgresql/root.crt";
+            @Value("${yugabyte.datasource.load-balance:false}") boolean loadBalance,
+            @Value("${yugabyte.datasource.min-pool-size:1}") int minPoolSize,
+            @Value("${yugabyte.datasource.max-pool-size:4}") int maxPoolSize,
 
-			hikariConfig.setJdbcUrl(jdbcUrl);
-			hikariConfig.setUsername(username);
-			hikariConfig.setPassword(password);
-			hikariConfig.setMinimumIdle(minPoolSize);
-			hikariConfig.setMaximumPoolSize(maxPoolSize);
+            @Value("${yugabyte.datasource.ssl-mode:disable}") String sslMode,
+            @Value("${yugabyte.datasource.ssl-root-cert:dummy.crt}") String sslRootCert
+    ) {
 
-			//hikariConfig.setValidationTimeout(30 * 1000);
-			hikariConfig.setConnectionTimeout(connectTimeOut);
+        try {
 
-			hikariConfig.setInitializationFailTimeout(30 * 1000);
+            Properties poolProperties = new Properties();
+            poolProperties.setProperty("dataSourceClassName", driverClassName);
 
-			hikariConfig.addDataSourceProperty("load-balance", loadBalance);
+            poolProperties.setProperty("maximumPoolSize", String.valueOf(maxPoolSize));
+            poolProperties.setProperty("minimumIdle", String.valueOf(minPoolSize));
 
-			return new HikariDataSource(hikariConfig);
-		} catch (Exception ex) {
-			//System.out.println("Error creating datasource :" + ex.getMessage());
-			LOGGER.error("Exception creating datasource :" + ex.getMessage());
-			throw ex;
-		}
-	}
+            poolProperties.setProperty("dataSource.serverName", host);
+            poolProperties.setProperty("dataSource.portNumber", port);
+            poolProperties.setProperty("dataSource.databaseName", dbName);
 
-*/
+            poolProperties.setProperty("dataSource.user", username);
+            poolProperties.setProperty("dataSource.password", password);
 
-	@Bean
-	DataSource dataSource(
-			@Value("${driver-class-name:com.yugabyte.ysql.YBClusterAwareDataSource}") String driverClassName,
-			@Value("${yugabyte.datasource.host}") String host,
-			@Value("${yugabyte.datasource.port}") String port,
-			@Value("${yugabyte.datasource.db-name}") String dbName,
-			@Value("${yugabyte.datasource.username}") String username,
-			@Value("${yugabyte.datasource.password}") String password,
-			@Value("${yugabyte.datasource.ssl-mode}") String sslMode,
-			@Value("${yugabyte.datasource.ssl-root-cert}") String sslRootCert,
-			@Value("${yugabyte.datasource.connect-timeout:10000}") int connectTimeOut,
-			@Value("${yugabyte.datasource.socket-timeout:20000}") int socketTimeOut,
-			@Value("${yugabyte.datasource.login-timeout:40000}") int loginTimeOut,
-			@Value("${yugabyte.datasource.load-balance:false}") boolean loadBalance,
-			@Value("${yugabyte.datasource.min-pool-size:1}") int minPoolSize,
-			@Value("${yugabyte.datasource.max-pool-size:4}") int maxPoolSize) throws SQLException {
+            poolProperties.setProperty("dataSource.connectTimeout", String.valueOf(connectTimeOut));
+            poolProperties.setProperty("dataSource.socketTimeout", String.valueOf(socketTimeOut));
+            poolProperties.setProperty("dataSource.loginTimeout", String.valueOf(loginTimeOut));
 
-		try {
+            poolProperties.setProperty("dataSource.loadBalanceHosts", String.valueOf(loadBalance));
 
-			Properties poolProperties = new Properties();
-			poolProperties.setProperty("dataSourceClassName", "com.yugabyte.ysql.YBClusterAwareDataSource");
+            if (!sslMode.isEmpty() && !sslMode.equalsIgnoreCase("disable")) {
+                poolProperties.setProperty("dataSource.ssl", String.valueOf(true));
+                poolProperties.setProperty("dataSource.sslMode", sslMode);
 
-			poolProperties.setProperty("maximumPoolSize", String.valueOf(maxPoolSize));
+                if (!sslRootCert.isEmpty()) {
+                    poolProperties.setProperty("dataSource.sslRootCert", sslRootCert);
+                }
+            }
 
-			poolProperties.setProperty("dataSource.serverName", host);
-			poolProperties.setProperty("dataSource.portNumber", port);
-			poolProperties.setProperty("dataSource.databaseName", dbName);
+            HikariConfig config = new HikariConfig(poolProperties);
+            config.validate();
+            HikariDataSource hikariDataSource = new HikariDataSource(config);
 
-			poolProperties.setProperty("dataSource.user", username);
-			poolProperties.setProperty("dataSource.password", password);
+            return hikariDataSource;
 
 
-			HikariConfig config = new HikariConfig(poolProperties);
-			config.validate();
-			HikariDataSource hikariDataSource = new HikariDataSource(config);
+        } catch (Exception ex) {
+            LOGGER.error("Exception creating datasource :" + ex.getMessage());
+            throw ex;
+        }
+    }
 
-			return hikariDataSource;
+    @Bean
+    JdbcTemplate jdbcTemplate(@Autowired DataSource dataSource) {
 
-	/*		YBClusterAwareDataSource ds = new YBClusterAwareDataSource();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        return jdbcTemplate;
+    }
 
-			String jdbcUrl = "jdbc:yugabytedb://" + host + ":" + port  + "/" + dbName;
-			ds.setUrl(jdbcUrl);
-			ds.setUser(username);
-			ds.setPassword(password);
+    @Bean
+    NamedParameterJdbcOperations namedParameterJdbcOperations(DataSource dataSource) {
+        return new NamedParameterJdbcTemplate(dataSource);
+    }
 
-			Connection conn = ds.getConnection();
-			System.out.println(">>>> Successfully connected to " + dbName);
-			return ds;
-*/
-
-		} catch (Exception ex) {
-			//System.out.println("Error creating datasource :" + ex.getMessage());
-			LOGGER.error("Exception creating datasource :" + ex.getMessage());
-			throw ex;
-		}
-	}
-
-
-/*
-
-	@Bean
-	DataSource getDataSource (
-			@Value("${driver-class-name:com.yugabyte.Driver}") String driverClassName,
-			@Value("${yugabyte.datasource.host}") String host,
-			@Value("${yugabyte.datasource.port}") String port,
-			@Value("${yugabyte.datasource.db-name}") String dbName,
-			@Value("${yugabyte.datasource.username}") String username,
-			@Value("${yugabyte.datasource.password}") String password,
-			@Value("${yugabyte.datasource.ssl-mode}") String sslMode,
-			@Value("${yugabyte.datasource.ssl-root-cert}") String sslRootCert,
-			@Value("${yugabyte.datasource.connect-timeout:10000}") int connectTimeOut,
-			@Value("${yugabyte.datasource.socket-timeout:20000}") int socketTimeOut,
-			@Value("${yugabyte.datasource.login-timeout:40000}") int loginTimeOut,
-			@Value("${yugabyte.datasource.load-balance:false}") boolean loadBalance,
-			@Value("${yugabyte.datasource.min-pool-size:1}") int minPoolSize,
-			@Value("${yugabyte.datasource.max-pool-size:4}") int maxPoolSize) throws SQLException {
-
-		try {
-			YBClusterAwareDataSource ds = new YBClusterAwareDataSource();
-
-			ds.setUrl("jdbc:yugabytedb://" + host + ":" + port + "/" + dbName);
-			ds.setUser(username);
-			ds.setPassword(password);
-			ds.setConnectTimeout(connectTimeOut);
-			ds.setSocketTimeout(socketTimeOut);
-			ds.setLoginTimeout(loginTimeOut);
-			ds.setTcpKeepAlive(true);
-
-
-			ds.setLoadBalanceHosts(loadBalance);
-
-			if (!sslMode.isEmpty() && !sslMode.equalsIgnoreCase("disable")) {
-				ds.setSsl(true);
-				ds.setSslMode(sslMode);
-
-				if (!sslRootCert.isEmpty())
-					ds.setSslRootCert(sslRootCert);
-			}
-
-			return ds;
-		} catch (Exception ex) {
-			LOGGER.error("Exception creating datasource :" + ex.getMessage());
-			throw ex;
-		}
-	}
-*/
-
-
-	@Bean
-	JdbcTemplate jdbcTemplate(@Autowired DataSource dataSource) {
-
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		return jdbcTemplate;
-	}
-
-	@Bean
-	NamedParameterJdbcOperations namedParameterJdbcOperations(DataSource dataSource) {
-		return new NamedParameterJdbcTemplate(dataSource);
-	}
-
-	@Bean
-	TransactionManager transactionManager(DataSource dataSource) {
-		return new YugabyteTransactionManager(dataSource);
-	}
+    @Bean
+    TransactionManager transactionManager(DataSource dataSource) {
+        return new YugabyteTransactionManager(dataSource);
+    }
 
 }
