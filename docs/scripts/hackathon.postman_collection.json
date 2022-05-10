@@ -6,6 +6,27 @@
 	},
 	"item": [
 		{
+			"name": "getAllEmployees",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/employees/getAll",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"employees",
+						"getAll"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "addEmployee",
 			"request": {
 				"method": "POST",
@@ -36,12 +57,12 @@
 			"response": []
 		},
 		{
-			"name": "getEmployee",
+			"name": "getEmployeeById",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/api/employees/getAll",
+					"raw": "http://localhost:8080/api/getEmployee/4",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -49,8 +70,29 @@
 					"port": "8080",
 					"path": [
 						"api",
-						"employees",
-						"getAll"
+						"getEmployee",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getEmployeeByName",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/getEmployeeByName/Ravi",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"getEmployeeByName",
+						"Ravi"
 					]
 				}
 			},

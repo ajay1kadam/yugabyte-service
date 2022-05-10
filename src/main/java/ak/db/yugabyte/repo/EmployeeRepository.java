@@ -10,4 +10,5 @@ import java.util.Collection;
 
 public interface EmployeeRepository extends YsqlRepository<Employee, Integer> {
 
+    public Employee findByName(String name);
 }
