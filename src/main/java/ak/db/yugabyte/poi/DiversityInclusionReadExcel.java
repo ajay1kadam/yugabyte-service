@@ -10,27 +10,29 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.NumberToTextConverter;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 
 public class DiversityInclusionReadExcel implements DiversityInclusion {
 
-/*
-    CompanyDiversityInfo objCDI = null;
-    LeaderDiversityInfo objLDI1 = null;
-    LeaderDiversityInfo objLDI2 = null;
-    Set<LeaderDiversityInfo> setOfLeaders = null;
-*/
+    private static Logger LOGGER = LoggerFactory.getLogger(DiversityInclusionReadExcel.class);
 
     public void readDiversityOwnedData(CompanyDiversityInfoRepository companyDiversityInfoRepository,
-                                       LeaderDiversityInfoRepository leaderDiversityInfoRepository) throws IOException {
+                                       LeaderDiversityInfoRepository leaderDiversityInfoRepository,
+                                       Integer from, Integer to) throws IOException {
 
         try {
-            FileInputStream file = new FileInputStream(new File("C:\\devl\\wfb\\hackathon\\docs\\Hackathon_Data_MinorityWomenOwned_2022 v1.xlsx"));
+            FileInputStream file = new FileInputStream(getFile("Hackathon_Data.xlsx"));
+            //new FileInputStream(new File("C:\\devl\\wfb\\hackathon\\docs\\Hackathon_Data_MinorityWomenOwned_2022 v1.xlsx"));
 
+
+            LOGGER.info("file opened : " + file.getFD().toString());
 
             List<CompanyDiversityInfo> companyDiversityInfoList = new ArrayList<>();
             List<LeaderDiversityInfo> leaderDiversityInfoList = new ArrayList<>();
@@ -48,17 +50,9 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
             int iColumnIndex = 0;
 
             final int batchSize = 50;
-            int batchCounter = 1;
+            int batchCounter = 0;
 
             while (rowIterator.hasNext()) {
-
-
-                rowCounter++;
-                if (rowCounter <= 1000) continue;
-                if (rowCounter > 10000) {
-                    break;
-                }
-
 
                 CompanyDiversityInfo objCDI = new CompanyDiversityInfo();
                 LeaderDiversityInfo objLDI1 = new LeaderDiversityInfo();
@@ -66,10 +60,23 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
                 Set<LeaderDiversityInfo> setOfLeaders = new HashSet<>();
 
                 Row row = rowIterator.next();
+                rowCounter++;
                 //For each row, iterate through all the columns
-                if (row.getRowNum() == 0) {
+                //if (row.getRowNum() == 0) { // skip header row..
+                if (rowCounter == 0) { // skip header row..
                     continue;
                 }
+                if (rowCounter <= from) continue;
+                if (rowCounter > to) {
+
+                    if (batchCounter > 0) {
+                        saveToDB(companyDiversityInfoList, leaderDiversityInfoList,
+                                companyDiversityInfoRepository, leaderDiversityInfoRepository);
+                    }
+
+                    break;
+                }
+
                 Iterator<Cell> cellIterator = row.cellIterator();
 
                 while (cellIterator.hasNext()) {
@@ -118,48 +125,26 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
                         //objLDI1.setCompany(objCDI);
                         //objLDI2.setCompany(objCDI);
                         objCDI.setLeaders(setOfLeaders);
-
-/*
-                        if (objLDI1.getName() != null && objLDI1.getName().length() > 0) {
-                            lsLDI.add(objLDI1);
-                        }
-                        if (objLDI2.getName() != null && objLDI2.getName().length() > 0) {
-                            lsLDI.add(objLDI2);
-                        }
-*/
                     }
                 }
 
-                //companyDiversityInfoRepository.save(objCDI);
                 companyDiversityInfoList.add(objCDI);
                 if (objLDI1.getName() != null && objLDI1.getName().length() > 0) {
-                    //leaderDiversityInfoRepository.save(objLDI1);
                     leaderDiversityInfoList.add(objLDI1);
                 }
                 if (objLDI2.getName() != null && objLDI2.getName().length() > 0) {
-                    //leaderDiversityInfoRepository.save(objLDI2);
                     leaderDiversityInfoList.add(objLDI2);
                 }
 
                 batchCounter++;
                 if (batchCounter == batchSize) {
-                    long st_time = System.currentTimeMillis();
 
-                    try {
+                    saveToDB(companyDiversityInfoList, leaderDiversityInfoList,
+                            companyDiversityInfoRepository, leaderDiversityInfoRepository);
 
-                        companyDiversityInfoRepository.saveAll(companyDiversityInfoList);
-                        leaderDiversityInfoRepository.saveAll(leaderDiversityInfoList);
-                        System.out.println("#################### : " + rowCounter);
-                    }
-                    finally {
-                        System.out.println("#################### : " + rowCounter + ", time (ms) :"
-                                + (System.currentTimeMillis()-st_time));
-                    }
                     batchCounter = 0;
                 }
-
-
-            }
+            } // while row iter
 
             file.close();
         } catch (Exception e) {
@@ -168,6 +153,36 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
 
 
     }
+
+    private void saveToDB(List<CompanyDiversityInfo> companyDiversityInfoList,
+                          List<LeaderDiversityInfo> leaderDiversityInfoList,
+                          CompanyDiversityInfoRepository companyDiversityInfoRepository,
+                          LeaderDiversityInfoRepository leaderDiversityInfoRepository) {
+
+        long st_time = System.currentTimeMillis();
+        try {
+
+            companyDiversityInfoRepository.saveAll(companyDiversityInfoList);
+            leaderDiversityInfoRepository.saveAll(leaderDiversityInfoList);
+        } finally {
+
+            LOGGER.info("#################### :saveToDB(), time (ms) :"
+                    + (System.currentTimeMillis() - st_time));
+        }
+
+    }
+
+    private File getFile(String fileName) throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL resource = classLoader.getResource(fileName);
+
+        if (resource == null) {
+            throw new IllegalArgumentException("file is not found!");
+        } else {
+            return new File(resource.getFile());
+        }
+    }
+
 
    /* @Override
     public List<LeaderDiversityInfo> getLeaders() {

@@ -11,7 +11,8 @@ import java.util.List;
 
 public interface DiversityInclusion {
     public void readDiversityOwnedData(CompanyDiversityInfoRepository companyDiversityInfoRepository,
-                                       LeaderDiversityInfoRepository leaderDiversityInfoRepository) throws IOException;
+                                       LeaderDiversityInfoRepository leaderDiversityInfoRepository,
+                                       Integer from , Integer to) throws IOException;
     /*public List<LeaderDiversityInfo> getLeaders();
     public List<CompanyDiversityInfo> getCompanies();
 */}

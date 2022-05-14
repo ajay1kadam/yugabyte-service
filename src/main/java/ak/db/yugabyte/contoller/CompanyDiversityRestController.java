@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,15 +66,16 @@ public class CompanyDiversityRestController {
         }
     }
 
-    @GetMapping("/api/LoadFromFile")
-    public ResponseEntity<String> LoadFromFile() {
+    @GetMapping("/api/LoadFromFile/{from}/{to}")
+    public ResponseEntity<String> LoadFromFile(@PathVariable Integer from, @PathVariable Integer to) {
 
         long st_time = System.currentTimeMillis();
         try {
-            LOGGER.info("LoadFromFile() invoked !");
+            LOGGER.info("LoadFromFile() invoked !, Range, " +  from + ", " +to);
 
             DiversityInclusion objDAndI = DiversityInclusionFactory.createDiversityInclusion("DI");
-            objDAndI.readDiversityOwnedData(companyDiversityInfoRepository, leaderDiversityInfoRepository);
+            objDAndI.readDiversityOwnedData(companyDiversityInfoRepository, leaderDiversityInfoRepository,
+                    from, to);
 
             //diversityInclusionService.saveCompanyDiversityInfo(objDAndI.getCompanies());
       //      diversityInclusionService.saveLeaderDiversityInfo(objDAndI.getLeaders());
