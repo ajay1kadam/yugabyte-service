@@ -2,7 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.6.7'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
-	id "com.microsoft.azure.azurewebapp" version "1.2.0"
+	id "com.microsoft.azure.azurewebapp" version "1.1.0"
 
 }
 
@@ -14,6 +14,9 @@ repositories {
 	mavenCentral()
 }
 
+bootJar {
+	archiveFileName = "app.jar"
+}
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -39,9 +42,10 @@ dependencies {
 azurewebapp {
 	subscription = '7368ee82-cdbb-41e4-a49a-fffadd8bb59d'
 	resourceGroup = 'AK-RS-G1'
-	appName = 'yugabyte-service'
+	appName = 'yugabyte-db-service'
 	pricingTier = 'Free Trial'
 	region = 'Central US'
+
 	runtime {
 		os = 'Linux'
 		webContainer = 'Java SE' // or 'Java SE' if you want to run an executable jar
@@ -51,4 +55,6 @@ azurewebapp {
 	auth {
 		type = 'azure_cli' // support azure_cli, oauth2, device_code and service_principal
 	}
+
+
 }
