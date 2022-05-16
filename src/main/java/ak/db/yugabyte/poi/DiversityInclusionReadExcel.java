@@ -82,7 +82,7 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
 
                 if (rowCounter < from) continue; // skip initial rows
 
-                LOGGER.info("Start processing from record number, " + rowCounter );
+                //LOGGER.info("Start processing from record number, " + rowCounter );
                 if (rowCounter >= to) {
 
                     if (batchCounter > 0) {
@@ -224,10 +224,8 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
         long st_time = System.currentTimeMillis();
         try {
 
-/*
             companyDiversityInfoRepository.saveAll(companyDiversityInfoList);
             leaderDiversityInfoRepository.saveAll(leaderDiversityInfoList);
-*/
         } finally {
 
             LOGGER.info("#################### :saveToDB(), time (ms) :"
