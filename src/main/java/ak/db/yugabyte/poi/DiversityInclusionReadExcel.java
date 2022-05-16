@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,9 +58,9 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
 
             //Iterate through each rows one by one
             Iterator<Row> rowIterator = sheet.iterator();
-            int rowCounter = 0;
-            String strValue = null;
-            int iColumnIndex = 0;
+            int rowCounter = -1;
+            //String strValue = null;
+            //int iColumnIndex = 0;
 
             final int batchSize = 100;
             int batchCounter = 0;
@@ -78,14 +79,16 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
                 if (rowCounter == 0) { // skip header row..
                     continue;
                 }
-                if (rowCounter <= from) continue;
-                if (rowCounter > to) {
+
+                if (rowCounter < from) continue; // skip initial rows
+
+                LOGGER.info("Start processing from record number, " + rowCounter );
+                if (rowCounter >= to) {
 
                     if (batchCounter > 0) {
                         saveToDB(companyDiversityInfoList, leaderDiversityInfoList,
                                 companyDiversityInfoRepository, leaderDiversityInfoRepository);
                     }
-
                     break;
                 }
 
@@ -94,13 +97,16 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
                 while (cellIterator.hasNext()) {
 
                     Cell cell = cellIterator.next();
-                    iColumnIndex = cell.getColumnIndex();
+                    int iColumnIndex = cell.getColumnIndex();
 
+                    String strValue;
                     if (cell.getCellType() == CellType.NUMERIC) {
                         strValue = NumberToTextConverter.toText(cell.getNumericCellValue());
                     } else {
                         strValue = cell.getStringCellValue();
                     }
+
+
                     if (iColumnIndex == 0) {
                         objCDI.setDunsNumber(strValue);
                     } else if (iColumnIndex == 1) {
@@ -117,23 +123,56 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
                         objCDI.setZipCode(strValue);
                     } else if (iColumnIndex == 7) {
                         objCDI.setPhone(strValue);
-                    } else if (iColumnIndex == 8) {
+                    } else if (iColumnIndex == 8 && StringUtils.hasLength(strValue)) { //executiveContact1
                         objLDI1.setName(strValue);
-                        //setOfLeaders.add(objLDI1);
-                        if (objLDI1.getName() != null && objLDI1.getName().length() > 0) {
+                        setOfLeaders.add(objLDI1);
+                        /*if (objLDI1.getName() != null && objLDI1.getName().length() > 0) {
                             setOfLeaders.add(objLDI1);
-                        }
+                        }*/
+                    } else if (iColumnIndex == 9 && StringUtils.hasLength(strValue)) { //executiveContact1 - gender
+                        objLDI1.setGender(strValue);
+                    } else if (iColumnIndex == 10 && StringUtils.hasLength(strValue)) { //executiveContact1 - ethnicity
+                        objLDI1.setEthnicity(strValue);
+                    }
+                    else if (iColumnIndex == 11 && StringUtils.hasLength(strValue)) { //executiveContact1 - lgbt
+                        objLDI1.setIsLgbt(strValue);
+                    }
+                    else if (iColumnIndex == 12 && StringUtils.hasLength(strValue)) { //executiveContact1 - veteran
+                        objLDI1.setIsVeteran(strValue);
+                    }else if (iColumnIndex == 13 && StringUtils.hasLength(strValue)) { //executiveContact1 - disabled
+                        objLDI1.setIsDisable(strValue);
+                    }else if (iColumnIndex == 14 && StringUtils.hasLength(strValue)) { //executiveContact1 - share_percent
+                        objLDI1.setSharePercentage(parseSharePercentage(strValue));
+                    }
 
-                    } else if (iColumnIndex == 9) {
+                    /***********/
+                    //else if (iColumnIndex == 9) { //executiveContact2
+                    else if (iColumnIndex == 15 && StringUtils.hasLength(strValue)) { //executiveContact2
                         objLDI2.setName(strValue);
-                        //setOfLeaders.add(objLDI2);
-                        if (objLDI2.getName() != null && objLDI2.getName().length() > 0) {
+                        setOfLeaders.add(objLDI2);
+                        /*if (objLDI2.getName() != null && objLDI2.getName().length() > 0) {
                             setOfLeaders.add(objLDI2);
-                        }
+                        }*/
+                    }  else if (iColumnIndex == 16 && StringUtils.hasLength(strValue)) { //executiveContact2 - gender
+                        objLDI2.setGender(strValue);
+                    } else if (iColumnIndex == 17 && StringUtils.hasLength(strValue)) { //executiveContact2 - ethnicity
+                        objLDI2.setEthnicity(strValue);
+                    }
+                    else if (iColumnIndex == 18 && StringUtils.hasLength(strValue)) { //executiveContact2 - lgbt
+                        objLDI2.setIsLgbt(strValue);
+                    }
+                    else if (iColumnIndex == 19 && StringUtils.hasLength(strValue)) { //executiveContact2 - veteran
+                        objLDI2.setIsVeteran(strValue);
+                    }else if (iColumnIndex == 20 && StringUtils.hasLength(strValue)) { //executiveContact2 - disabled
+                        objLDI2.setIsDisable(strValue);
+                    }else if (iColumnIndex == 21 && StringUtils.hasLength(strValue)) { //executiveContact2 - share_percent
+                        objLDI2.setSharePercentage(parseSharePercentage(strValue));
+                    }
+                    //else if (iColumnIndex == 10) {
+                    else if (iColumnIndex == 22) {
 
-                    } else if (iColumnIndex == 10) {
-
-                    } else if (iColumnIndex == 11) {
+                    //} else if (iColumnIndex == 11) {
+                    } else if (iColumnIndex == 23) {
                         //objLDI1.setCompany(objCDI);
                         //objLDI2.setCompany(objCDI);
                         objCDI.setLeaders(setOfLeaders);
@@ -166,6 +205,16 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
 
     }
 
+    private long parseSharePercentage(String strValue) {
+        try {
+            return Integer.parseInt(strValue);
+        }
+        catch (Exception ex) {
+            LOGGER.error("Error parsing share percentage : " + strValue);
+            return 0;
+        }
+    }
+
     private void saveToDB(List<CompanyDiversityInfo> companyDiversityInfoList,
                           List<LeaderDiversityInfo> leaderDiversityInfoList,
                           CompanyDiversityInfoRepository companyDiversityInfoRepository,
@@ -175,17 +224,17 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
         long st_time = System.currentTimeMillis();
         try {
 
+/*
             companyDiversityInfoRepository.saveAll(companyDiversityInfoList);
             leaderDiversityInfoRepository.saveAll(leaderDiversityInfoList);
+*/
         } finally {
 
             LOGGER.info("#################### :saveToDB(), time (ms) :"
                     + (System.currentTimeMillis() - st_time));
             companyDiversityInfoList.clear();
             leaderDiversityInfoList.clear();
-
         }
-
     }
 
     private File getFile(String fileName) throws IOException {

@@ -43,7 +43,7 @@ public class CompanyDiversityRestController {
             ex.printStackTrace();
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
-             LOGGER.info("addEmployee() Processing time (ms) : " + (System.currentTimeMillis() - st_time));
+             LOGGER.info("addCompanyDiversityInfo() Processing time (ms) : " + (System.currentTimeMillis() - st_time));
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
