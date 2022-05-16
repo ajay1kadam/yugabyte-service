@@ -124,7 +124,7 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
                     } else if (iColumnIndex == 7) {
                         objCDI.setPhone(strValue);
                     } else if (iColumnIndex == 8 && StringUtils.hasLength(strValue)) { //executiveContact1
-                        objLDI1.setName(strValue);
+                        objLDI1.setName(parseName(strValue));
                         setOfLeaders.add(objLDI1);
                         /*if (objLDI1.getName() != null && objLDI1.getName().length() > 0) {
                             setOfLeaders.add(objLDI1);
@@ -148,7 +148,7 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
                     /***********/
                     //else if (iColumnIndex == 9) { //executiveContact2
                     else if (iColumnIndex == 15 && StringUtils.hasLength(strValue)) { //executiveContact2
-                        objLDI2.setName(strValue);
+                        objLDI2.setName(parseName(strValue));
                         setOfLeaders.add(objLDI2);
                         /*if (objLDI2.getName() != null && objLDI2.getName().length() > 0) {
                             setOfLeaders.add(objLDI2);
@@ -165,10 +165,13 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
                         objLDI2.setIsVeteran(strValue);
                     }else if (iColumnIndex == 20 && StringUtils.hasLength(strValue)) { //executiveContact2 - disabled
                         objLDI2.setIsDisable(strValue);
-                    }else if (iColumnIndex == 21 && StringUtils.hasLength(strValue)) { //executiveContact2 - share_percent
-                        objLDI2.setSharePercentage(parseSharePercentage(strValue));
+                    }else if (iColumnIndex == 21 ) { //executiveContact2 - share_percent
+                        if ( StringUtils.hasLength(strValue)) {
+                            objLDI2.setSharePercentage(parseSharePercentage(strValue));
+                        }
+                        objCDI.setLeaders(setOfLeaders);
                     }
-                    //else if (iColumnIndex == 10) {
+                  /*  //else if (iColumnIndex == 10) {
                     else if (iColumnIndex == 22) {
 
                     //} else if (iColumnIndex == 11) {
@@ -176,14 +179,14 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
                         //objLDI1.setCompany(objCDI);
                         //objLDI2.setCompany(objCDI);
                         objCDI.setLeaders(setOfLeaders);
-                    }
+                    }*/
                 }
 
                 companyDiversityInfoList.add(objCDI);
-                if (objLDI1.getName() != null && objLDI1.getName().length() > 0) {
+                if ( StringUtils.hasLength(objLDI1.getName()) ) {
                     leaderDiversityInfoList.add(objLDI1);
                 }
-                if (objLDI2.getName() != null && objLDI2.getName().length() > 0) {
+                if ( StringUtils.hasLength(objLDI2.getName())) {
                     leaderDiversityInfoList.add(objLDI2);
                 }
 
@@ -203,6 +206,14 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
         }
 
 
+    }
+
+    private String parseName(String strValue) {
+        if (StringUtils.hasLength(strValue)) {
+          String name =  strValue.split("-")[0];
+          return  name != null ? name.trim() : "";
+        }
+        return "";
     }
 
     private long parseSharePercentage(String strValue) {
