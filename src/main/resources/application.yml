@@ -1,7 +1,10 @@
+
 spring:
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: none
+
 ###    url: jdbc:postgresql://us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io:5433/yugabyte?ssl=true&sslmode=verify-full&sslrootcert=C:\devl\wfb\hackathon\petclinic-spring-data-yugabytedb\.postgresql\root.crt
 
 yugabyte:
@@ -10,7 +13,7 @@ yugabyte:
     #host: 192.168.0.108
     host: us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io
     port: 5433
-    db-name: hackathon2
+    db-name: hackathon3
     username: user4
     password: user#4
     load-balance: true
@@ -26,6 +29,11 @@ management:
     web:
       base-path: /manage
       exposure.include: "*"
+
+
+
+springdoc.api-docs.path: /api-docs
+springdoc.swagger-ui.path: /swagger-ui-custom.html
 
 # Logging
 logging.level:

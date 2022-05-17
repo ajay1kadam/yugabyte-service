@@ -1,4 +1,4 @@
-package ak.db.yugabyte.contoller;
+package ak.db.yugabyte.controller;
 
 import ak.db.yugabyte.entity.LeaderDiversityInfo;
 import ak.db.yugabyte.repo.LeaderDiversityInfoRepository;

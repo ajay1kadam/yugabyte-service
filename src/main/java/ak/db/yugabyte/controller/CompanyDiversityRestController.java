@@ -1,4 +1,4 @@
-package ak.db.yugabyte.contoller;
+package ak.db.yugabyte.controller;
 
 import ak.db.yugabyte.entity.CompanyDiversityInfo;
 import ak.db.yugabyte.poi.DiversityInclusion;
@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -43,7 +44,7 @@ public class CompanyDiversityRestController {
             ex.printStackTrace();
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
-             LOGGER.info("addCompanyDiversityInfo() Processing time (ms) : " + (System.currentTimeMillis() - st_time));
+            LOGGER.info("addCompanyDiversityInfo() Processing time (ms) : " + (System.currentTimeMillis() - st_time));
         }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -66,19 +67,42 @@ public class CompanyDiversityRestController {
         }
     }
 
+
+    @PostMapping("/api/getCompanyByID/{companyId}")
+    public ResponseEntity<CompanyDiversityInfo> getCompanyByID(@PathVariable Integer companyId) {
+        long st_time = System.currentTimeMillis();
+
+        try {
+/*
+            var companyDiversityInfoOptional = companyDiversityInfoRepository.findById((companyId.longValue());
+
+            return new ResponseEntity<>(companyDiversityInfoOptional.get(),HttpStatus.OK);*/
+        } catch (NoSuchElementException ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } finally {
+            LOGGER.info("getCompanyByID/{id}() Processing time (ms) : " + (System.currentTimeMillis() - st_time));
+        }
+        return null;
+
+    }
+
     @GetMapping("/api/LoadFromFile/{from}/{to}")
     public ResponseEntity<String> LoadFromFile(@PathVariable Integer from, @PathVariable Integer to) {
 
         long st_time = System.currentTimeMillis();
         try {
-            LOGGER.info("LoadFromFile() invoked !, Range, " +  from + ", " +to);
+            LOGGER.info("LoadFromFile() invoked !, Range, " + from + ", " + to);
 
             DiversityInclusion objDAndI = DiversityInclusionFactory.createDiversityInclusion("DI");
             objDAndI.readDiversityOwnedData(companyDiversityInfoRepository, leaderDiversityInfoRepository,
                     from, to);
 
             //diversityInclusionService.saveCompanyDiversityInfo(objDAndI.getCompanies());
-      //      diversityInclusionService.saveLeaderDiversityInfo(objDAndI.getLeaders());
+            //      diversityInclusionService.saveLeaderDiversityInfo(objDAndI.getLeaders());
 
         } catch (Exception ex) {
             ex.printStackTrace();
