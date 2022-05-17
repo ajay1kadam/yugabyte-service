@@ -1,4 +1,7 @@
-
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
 ###    url: jdbc:postgresql://us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io:5433/yugabyte?ssl=true&sslmode=verify-full&sslrootcert=C:\devl\wfb\hackathon\petclinic-spring-data-yugabytedb\.postgresql\root.crt
 
 yugabyte:
@@ -7,7 +10,7 @@ yugabyte:
     #host: 192.168.0.108
     host: us-west-2.d6ef4d85-b2bb-462e-bc25-0e8bbf565d92.aws.ybdb.io
     port: 5433
-    db-name: hackathon
+    db-name: hackathon2
     username: user4
     password: user#4
     load-balance: true
@@ -26,8 +29,8 @@ management:
 
 # Logging
 logging.level:
-  com.zaxxer.hikari: TRACE
-  com.zaxxer.hikari.HikariConfig: DEBUG
+  com.zaxxer.hikari: INFO
+  com.zaxxer.hikari.HikariConfig: INFO
   com.yugabyte: DEBUG
   com.yugabyte.ysql.YBClusterAwareDataSource: TRACE
   org.springframework.jdbc.core.JdbcTemplate: DEBUG

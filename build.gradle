@@ -2,6 +2,8 @@ plugins {
 	id 'org.springframework.boot' version '2.6.7'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
+	id "com.microsoft.azure.azurewebapp" version "1.1.0"
+
 }
 
 group = 'ak.db'
@@ -12,8 +14,12 @@ repositories {
 	mavenCentral()
 }
 
+bootJar {
+	archiveFileName = "app.jar"
+}
+
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+//	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -27,6 +33,50 @@ dependencies {
 
 	implementation 'org.slf4j:slf4j-api:1.7.36'
 
+	implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.2.2'
+
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+// free tier - kadam.ajay@gmail.com
+azurewebapp {
+	subscription = '7368ee82-cdbb-41e4-a49a-fffadd8bb59d'
+	resourceGroup = 'AK-RS-G1'
+	appName = 'yugabyte-db-service'
+	pricingTier = 'Free Trial'
+	region = 'Central US'
+
+	runtime {
+		os = 'Linux'
+		webContainer = 'Java SE' // or 'Java SE' if you want to run an executable jar
+		javaVersion = 'Java 11'
+	}
+	appSettings {
+		JAVA_OPTS = "-Xms1204m -Xmx1204m"
+	}
+	auth {
+		type = 'azure_cli' // support azure_cli, oauth2, device_code and service_principal
+	}
+}
+
+// hackathon azure
+/*
+
+azurewebapp {
+	subscription = 'd8d3f55a-8679-4dad-bbe3-3b851100c78e'
+	resourceGroup = 'rg-EnablementTransformers'
+	appName = 'yugabyte-db-service1'
+	pricingTier = 'Wells Hackathon Azure Sponsorship'
+	region = 'East US'
+
+	runtime {
+		os = 'Windows'
+		webContainer = 'Java SE' // or 'Java SE' if you want to run an executable jar
+		javaVersion = 'Java 11'
+	}
+
+	auth {
+		type = 'azure_cli' // support azure_cli, oauth2, device_code and service_principal
+	}
+}*/

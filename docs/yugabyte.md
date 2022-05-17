@@ -20,7 +20,7 @@ SELECT rolname, rolsuper, rolcanlogin FROM pg_roles;
 CREATE USER user4 WITH PASSWORD 'user#4';
 
 # Grant all permissions hackathon  
-GRANT ALL ON DATABASE hackathon TO user4;
+GRANT ALL ON DATABASE hackathon2 TO user4;
 
 # List all tables
 \d
