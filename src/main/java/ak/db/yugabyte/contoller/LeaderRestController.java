@@ -25,8 +25,8 @@ public class LeaderRestController {
         this.leaderDiversityInfoRepository = leaderDiversityInfoRepository;
     }
 
-    @PostMapping("/api/getLeaderByGender/{gender}")
-    public ResponseEntity<List<LeaderDiversityInfo>> getLeaderByGender(@PathVariable String gender) {
+    @PostMapping("/api/getLeadersByGender/{gender}")
+    public ResponseEntity<List<LeaderDiversityInfo>> getLeadersByGender(@PathVariable String gender) {
         long st_time = System.currentTimeMillis();
 
         try {
@@ -41,7 +41,7 @@ public class LeaderRestController {
             ex.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
-            LOGGER.info("getLeaderByGender/{gender}() Processing time (ms) : " + (System.currentTimeMillis() - st_time));
+            LOGGER.info("getLeadersByGender/{gender}() Processing time (ms) : " + (System.currentTimeMillis() - st_time));
         }
     }
 
