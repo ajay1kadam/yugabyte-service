@@ -210,8 +210,14 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
 
     private String parseName(String strValue) {
         if (StringUtils.hasLength(strValue)) {
-          String name =  strValue.split("-")[0];
-          return  name != null ? name.trim() : "";
+            try {
+                String name = strValue.split("-")[0];
+                return name != null ? name.trim() : "";
+            }
+            catch( Exception ex) {
+                LOGGER.error("error Parsing name : " + strValue);
+                return "";
+            }
         }
         return "";
     }
@@ -221,7 +227,7 @@ public class DiversityInclusionReadExcel implements DiversityInclusion {
             return Integer.parseInt(strValue);
         }
         catch (Exception ex) {
-            LOGGER.error("Error parsing share percentage : " + strValue);
+            //LOGGER.error("Error parsing share percentage : " + strValue);
             return 0;
         }
     }
