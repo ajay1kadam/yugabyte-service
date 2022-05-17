@@ -26,6 +26,10 @@ public class LeaderDiversityInfo {
     private long sharePercentage;
 
 
+    @Column(name = "company_id", insertable = false, updatable = false)
+    private Integer companyId;
+
+
     public LeaderDiversityInfo() {
     }
 
@@ -105,6 +109,13 @@ public class LeaderDiversityInfo {
         this.sharePercentage = sharePercentage;
     }
 
+    public Integer getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
+    }
 
 
 
