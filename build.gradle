@@ -39,6 +39,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+// free tier - kadam.ajay@gmail.com
+/*
 azurewebapp {
 	subscription = '7368ee82-cdbb-41e4-a49a-fffadd8bb59d'
 	resourceGroup = 'AK-RS-G1'
@@ -55,6 +57,23 @@ azurewebapp {
 	auth {
 		type = 'azure_cli' // support azure_cli, oauth2, device_code and service_principal
 	}
+}*/
 
+// hackathon azure
+azurewebapp {
+	subscription = 'd8d3f55a-8679-4dad-bbe3-3b851100c78e'
+	resourceGroup = 'rg-EnablementTransformers'
+	appName = 'yugabyte-db-service1'
+	pricingTier = 'Wells Hackathon Azure Sponsorship'
+	region = 'East US'
 
+	runtime {
+		os = 'Windows'
+		webContainer = 'Java SE' // or 'Java SE' if you want to run an executable jar
+		javaVersion = 'Java 11'
+	}
+
+	auth {
+		type = 'azure_cli' // support azure_cli, oauth2, device_code and service_principal
+	}
 }
